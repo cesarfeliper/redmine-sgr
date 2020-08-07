@@ -28,7 +28,7 @@ services:
       REDMINE_DB_PASSWORD: redhat
       REDMINE_DB_DATABASE: redmine
     extra_hosts:
-      - semge.indrabrasil.com.br: 127.0.0.1
+      - "semge.indrabrasil.com.br: 127.0.0.1"
   # nginx:
   #   image: nginx:1.15-alpine
   #   restart: unless-stopped
