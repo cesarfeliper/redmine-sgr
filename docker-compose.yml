@@ -1,16 +1,16 @@
 version: "3"
 services:
-  # mysql:
-  #   image: mysql:5.7
-  #   hostname: mysql
-  #   volumes:
-  #     - mysql:/var/lib/mysql
-  #   restart: always
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: rootpass
-  #     MYSQL_USER: karan
-  #     MYSQL_PASSWORD: redhat
-  #     MYSQL_DATABASE: redmine
+  mysql:
+    image: mysql:5.7
+    hostname: mysql
+    volumes:
+      - mysql:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_USER: karan
+      MYSQL_PASSWORD: redhat
+      MYSQL_DATABASE: redmine
   redmine:
     image: redmine:latest
     hostname: redmine
