@@ -8,13 +8,13 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_USER: sgr
+      MYSQL_USER: karan
       MYSQL_PASSWORD: redhat
       MYSQL_DATABASE: redmine
   redmine:
     image: redmine:latest
     restart: always
-    depends_on:
+    ]depends_on:
       - mysql
     ports:
       - 3000:3000
@@ -22,7 +22,7 @@ services:
       - redmine:/usr/src/redmine/files
     environment:
       REDMINE_DB_MYSQL: mysql
-      REDMINE_DB_USERNAME: sgr
+      REDMINE_DB_USERNAME: karan
       REDMINE_DB_PASSWORD: redhat
       REDMINE_DB_DATABASE: redmine
   nginx:
