@@ -14,7 +14,7 @@ services:
   redmine:
     image: redmine:latest
     restart: always
-    ]depends_on:
+    depends_on:
       - mysql
     ports:
       - 3000:3000
