@@ -16,10 +16,8 @@ services:
     restart: always
     depends_on:
       - mysql
-    # ports:
-    #   - 3000:3000
-    expose:
-      - "3000"
+    ports:
+      - 3000:3000
     volumes:
       - redmine:/usr/src/redmine/files
     environment:
@@ -37,6 +35,7 @@ services:
     ports:
       - "3000:3000"
       - "80:80"
+      - "443:443"
     links:
       - redmine
     command: ["nginx", "-g", "daemon off;"]
