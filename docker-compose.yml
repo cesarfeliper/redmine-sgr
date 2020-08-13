@@ -1,50 +1,79 @@
 version: "3"
 services:
-  mysql:
-    image: mysql:5.7
-    hostname: mysql
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    #environment:
+    #  TZ: Asia/Tokyo # Please set time zone if you want to change it.
     volumes:
-      - mysql:/var/lib/mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_USER: karan
-      MYSQL_PASSWORD: redhat
-      MYSQL_DATABASE: redmine
-  redmine:
-    image: redmine:latest
-    hostname: redmine
-    restart: always
-    depends_on:
-      - mysql
+      - ./logs/nginx/:/var/log/nginx/
+      - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
+    #NOTE : TLS key's path for HTTPS
+    # - <host ssl_certificate key's path> : <nginx.conf ssl_certificate key's path>
+    # - <host ssl_certificate_key key's path> : <nginx.conf  ssl_certificate_key key's path>
+    hostname: nginx
     ports:
-      - 3000:3000
-    volumes:
-      - redmine:/usr/src/redmine/files
+      - "3000:3000"
+      - "443:443"
+    links:
+      - redmine
+    depends_on:
+      - redmine
+    command: ["nginx", "-g", "daemon off;"]
+    restart: unless-stopped
+  mariadb:
+    build: ./mariadb
+    container_name: mariadb
     environment:
-      REDMINE_DB_MYSQL: mysql
-      REDMINE_DB_USERNAME: karan
-      REDMINE_DB_PASSWORD: redhat
-      REDMINE_DB_DATABASE: redmine
-  # nginx:
-  #   image: nginx:latest
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./data/nginx/default.conf:/etc/nginx/conf.d/default.conf
-  # - ./data/certbot/conf:/etc/letsencrypt
-  # - ./data/certbot/www:/var/www/certbot
-  # ports:
-  #   - "80:80"
-  # links:
-  #   - redmine
-  # command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
-  # certbot:
-  #   image: certbot/certbot
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./data/certbot/conf:/etc/letsencrypt
-  #     - ./data/certbot/www:/var/www/certbot
-  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-volumes:
-  mysql:
+      MYSQL_ROOT_PASSWORD: mypass
+      MYSQL_USER: redmine
+      MYSQL_PASSWORD: redmine
+      MYSQL_DATABASE: redmine
+      #TZ: Asia/Tokyo # Please set time zone if you want to change it.
+    volumes:
+      - ./mariadb/config/my.cnf:/etc/mysql/my.cnf
+      - ./storage/mariadb-storage/data:/var/lib/mysql
+    hostname: mariadb
+    expose:
+      - "3306"
+    command: mysqld
+    restart: unless-stopped
   redmine:
+    build:
+      context: ./redmine
+      dockerfile: Dockerfile
+    container_name: redmine
+    environment:
+      RAILS_MIGRATE: 0
+      PLUGINS_MIGRATE: 1
+      DB_PING_USER: redmine
+      DB_PING_USER_PASSWORD: redmine
+      UNICORN_WORKER_PROCESS: 2
+      UNICORN_TIMEOUT: 60
+      # Unicorn worker killer settings. https://github.com/kzk/unicorn-worker-killer
+      UNICORN_WOKER_KILLER_MEMORY_MIN: 192 # Memory min threshold. Unit is MB.
+      UNICORN_WOKER_KILLER_MEMORY_MAX: 256 # Memory max threshold. Unit is MB.
+      UNICORN_WOKER_KILLER_CHECK_CYCLE: 16
+      UNICORN_WOKER_KILLER_VERBOSE: 0
+      #TZ: Asia/Tokyo # Please set time zone if you want to change it.
+    hostname: redmine
+    expose:
+      - "3000"
+    links:
+      - mariadb
+    depends_on:
+      - mariadb
+    volumes:
+      - ./logs/redmine/:/usr/src/app/redmine/log/
+      - ./storage/redmine-files/files:/usr/src/app/redmine/files
+      - ./storage/git-storage/repositories:/usr/src/git
+      # for configuration
+      - ./redmine/src/config/configuration.yml:/usr/src/app/redmine/config/configuration.yml
+      - ./redmine/src/config/database.yml:/usr/src/app/redmine/config/database.yml
+      - ./redmine/src/config/unicorn.rb:/usr/src/app/redmine/config/unicorn.rb
+      - ./redmine/src/config.ru:/usr/src/app/redmine/config.ru
+      - ./redmine/src/public/themes:/usr/src/app/redmine/public/themes
+      - ./redmine/src/plugins/:/usr/src/app/redmine/plugins/
+      # TODO : Sync host machine's source code.
+      #- ./redmine/redmine/app/:/usr/src/app/redmine/app/
+    restart: unless-stopped
