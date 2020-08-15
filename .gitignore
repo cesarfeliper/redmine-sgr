@@ -13,4 +13,6 @@ redmine/src*
 !redmine/src/config/unicorn.yml
 *.rbc
 
+*.pem
+
 

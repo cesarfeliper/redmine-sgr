@@ -8,9 +8,9 @@ services:
     volumes:
       - ./logs/nginx/:/var/log/nginx/
       - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
-    #NOTE : TLS key's path for HTTPS
-    # - <host ssl_certificate key's path> : <nginx.conf ssl_certificate key's path>
-    # - <host ssl_certificate_key key's path> : <nginx.conf  ssl_certificate_key key's path>
+      #NOTE : TLS key's path for HTTPS
+      - ./nginx/data/private/redminesgr.com+5.pem:/etc/ssl/private/redminesgr.crt
+      - ./nginx/data/certs/redminesgr.com+5-key.pem:/etc/ssl/certs/redminesgr.key
     hostname: nginx
     ports:
       - "3000:3000"
@@ -21,6 +21,9 @@ services:
       - redmine
     command: ["nginx", "-g", "daemon off;"]
     restart: unless-stopped
+    extra_hosts:
+      - "redminesgr.com:127.0.0.1"
+      - "redminesgrapp.net:127.0.0.1"
   mariadb:
     build: ./mariadb
     container_name: mariadb
@@ -44,7 +47,7 @@ services:
       dockerfile: Dockerfile
     container_name: redmine
     environment:
-      RAILS_MIGRATE: 0
+      RAILS_MIGRATE: 1
       PLUGINS_MIGRATE: 1
       DB_PING_USER: redmine
       DB_PING_USER_PASSWORD: redmine
