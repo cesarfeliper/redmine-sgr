@@ -21,9 +21,9 @@ services:
       - redmine
     command: ["nginx", "-g", "daemon off;"]
     restart: unless-stopped
-    extra_hosts:
-      - "redminesgr.com:127.0.0.1"
-      - "redminesgrapp.net:127.0.0.1"
+    # extra_hosts:
+    #   - "redminesgr.com:127.0.0.1"
+    #   - "redminesgrapp.net:127.0.0.1"
   mariadb:
     build: ./mariadb
     container_name: mariadb
