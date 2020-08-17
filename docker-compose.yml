@@ -9,8 +9,8 @@ services:
       - ./logs/nginx/:/var/log/nginx/
       - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
       #NOTE : TLS key's path for HTTPS
-      - ./nginx/data/private/redminesgr.com+5.pem:/etc/ssl/private/redminesgr.crt
-      - ./nginx/data/certs/redminesgr.com+5-key.pem:/etc/ssl/certs/redminesgr.key
+      # - ./nginx/data/private/redminesgr.com+5.pem:/etc/ssl/private/redminesgr.crt
+      # - ./nginx/data/certs/redminesgr.com+5-key.pem:/etc/ssl/certs/redminesgr.key
     hostname: nginx
     ports:
       - "3000:3000"
